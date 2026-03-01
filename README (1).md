@@ -347,25 +347,4 @@ AGENT_SPEED      = 100     # agent movement speed (ms)
 
 ---
 
-## 👨‍💻 Developer
 
-```
-Name        :  [Your Full Name Here]
-Roll Number :  [Your Roll Number Here]
-Course      :  AI 2002 – Artificial Intelligence
-Campus      :  NUCES Chiniot-Faisalabad
-Semester    :  Spring 2026
-Submitted   :  March 01, 2026
-```
-
----
-
-## 📜 Academic Integrity
-
-> This project was developed individually as per the assignment guidelines.
-> Code logic and implementation reflects personal understanding of
-> informed search algorithms covered in AI 2002.
-
----
-
-*© 2026 National University of Computer & Emerging Sciences*

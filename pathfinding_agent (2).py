@@ -179,5 +179,123 @@ def greedy_search(grid, start, goal, h_func):
 
     return None, visited_order, nodes_expanded
 
+# ═════════════════════════════════════════════
+#   RECONSTRUCT PATH
+# ═════════════════════════════════════════════
+
+def reconstruct_path(parent, goal):
+    path = []
+    node = goal
+    while node is not None:
+        path.append(node)
+        node = parent[node]
+    path.reverse()
+    return path
+
+
+# ═════════════════════════════════════════════
+#   GRID CLASS
+# ═════════════════════════════════════════════
+
+class Grid:
+    def __init__(self):
+        self.start = (0, 0)
+        self.goal  = (ROWS-1, COLS-1)
+        self.reset()
+
+    def reset(self):
+        self.cells = [[EMPTY]*COLS for _ in range(ROWS)]
+        self.cells[self.start[0]][self.start[1]] = START
+        self.cells[self.goal[0]][self.goal[1]]   = GOAL
+
+    def generate_maze(self):
+        self.reset()
+        for r in range(ROWS):
+            for c in range(COLS):
+                if self.cells[r][c] == EMPTY:
+                    if random.random() < OBSTACLE_DENSITY:
+                        self.cells[r][c] = WALL
+        self.cells[self.start[0]][self.start[1]] = START
+        self.cells[self.goal[0]][self.goal[1]]   = GOAL
+
+    def clear_search(self):
+        for r in range(ROWS):
+            for c in range(COLS):
+                if self.cells[r][c] in (VISITED, FRONTIER, PATH, AGENT, FINALPATH, NEW_WALL):
+                    self.cells[r][c] = EMPTY
+
+    def set_start(self, row, col):
+        # Clear old start
+        old_r, old_c = self.start
+        if self.cells[old_r][old_c] == START:
+            self.cells[old_r][old_c] = EMPTY
+        self.start = (row, col)
+        self.cells[row][col] = START
+
+    def set_goal(self, row, col):
+        # Clear old goal
+        old_r, old_c = self.goal
+        if self.cells[old_r][old_c] == GOAL:
+            self.cells[old_r][old_c] = EMPTY
+        self.goal = (row, col)
+        self.cells[row][col] = GOAL
+
+    def toggle_wall(self, row, col):
+        if self.cells[row][col] == EMPTY:
+            self.cells[row][col] = WALL
+        elif self.cells[row][col] == WALL:
+            self.cells[row][col] = EMPTY
+
+    def place_dynamic_obstacle(self, row, col):
+        if self.cells[row][col] in (EMPTY, VISITED):
+            self.cells[row][col] = NEW_WALL
+            return True
+        return False
+
+    def show_final_path(self, path):
+        """
+        After goal reached:
+        1. Clear everything (blue visited, orange path)
+        2. Highlight ONLY the path agent followed in GREEN
+        """
+        # Step 1 — clear all search markings
+        for r in range(ROWS):
+            for c in range(COLS):
+                if self.cells[r][c] in (VISITED, PATH, AGENT, FRONTIER, NEW_WALL):
+                    self.cells[r][c] = EMPTY
+
+        # Step 2 — draw final path in GREEN
+        for (r, c) in path:
+            if self.cells[r][c] not in (START, GOAL):
+                self.cells[r][c] = FINALPATH
+
+
+# ═════════════════════════════════════════════
+#   BUTTON CLASS
+# ═════════════════════════════════════════════
+
+class Button:
+    def __init__(self, x, y, w, h, text, color, text_color=BLACK):
+        self.rect       = pygame.Rect(x, y, w, h)
+        self.text       = text
+        self.color      = color
+        self.base_color = color
+        self.hover_color= tuple(min(255,v+30) for v in color)
+        self.text_color = text_color
+        self.hovered    = False
+
+    def draw(self, surface, font):
+        color = self.hover_color if self.hovered else self.color
+        pygame.draw.rect(surface, color,     self.rect, border_radius=8)
+        pygame.draw.rect(surface, UI_BORDER, self.rect, 1, border_radius=8)
+        surf = font.render(self.text, True, self.text_color)
+        rect = surf.get_rect(center=self.rect.center)
+        surface.blit(surf, rect)
+
+    def check_hover(self, pos):
+        self.hovered = self.rect.collidepoint(pos)
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
 
 
